@@ -1,231 +1,327 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>中文发音大闯关</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中文发音挑战 · Chinese Pronunciation Challenge</title>
 <style>
 *{box-sizing:border-box}
-:root{font-family:Inter,Arial,"Microsoft YaHei",sans-serif;color:#172033;background:#f4f6fb}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at 15% 0,#e9e5ff 0,#f4f6fb 35%,#eef7ff 100%)}
-button{font:inherit}
-.app{width:min(900px,calc(100% - 28px));margin:0 auto;padding:28px 0 40px}
-.header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.brand{font-weight:950;font-size:26px}.sub{color:#667085;font-size:14px;margin-top:3px}
-.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:8px 13px;font-weight:800;font-size:14px}
-.track{height:9px;background:#e2e5ec;border-radius:99px;overflow:hidden;margin:18px 0}
-.track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#635bff,#a855f7);transition:width .35s}
-.panel{background:rgba(255,255,255,.92);border:1px solid #e5e7eb;border-radius:28px;box-shadow:0 18px 60px #27314d14;padding:34px;text-align:center}
-.startIcon{font-size:70px}.title{font-size:32px;font-weight:950;margin:8px 0}.desc{color:#667085;line-height:1.6}
-.primary{border:0;border-radius:16px;background:linear-gradient(135deg,#5b55f6,#7c3aed);color:#fff;font-weight:900;padding:15px 26px;cursor:pointer;box-shadow:0 10px 25px #635bff33}
-.primary:active{transform:translateY(1px)}
+body{
+  margin:0; font-family:Arial,"Microsoft YaHei",sans-serif;
+  min-height:100vh; background:linear-gradient(180deg,#f8f7ff 0%,#fff 55%,#f4f7ff 100%);
+  color:#172033; display:flex; justify-content:center;
+}
+.app{width:min(900px,100%); padding:28px 22px 45px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.title{font-size:28px;font-weight:900}.sub{color:#75809a;margin-top:5px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:#fff;border:1px solid #e6e8f2;border-radius:16px;padding:10px 16px;box-shadow:0 6px 18px #25325a12}
+.stat b{font-size:20px}
+.card{
+ margin-top:22px;background:#fff;border-radius:30px;padding:28px 24px 34px;
+ box-shadow:0 18px 55px #25325a18;text-align:center;border:1px solid #eef0f7;
+}
+.round{color:#7b8193;font-weight:700}
+.emoji{font-size:145px;line-height:1;margin:30px 0 20px;filter:drop-shadow(0 16px 18px #25325a16)}
+.prompt{font-size:24px;font-weight:800}
+.target{font-size:28px;margin-top:10px;font-weight:900;color:#5147e8;min-height:40px}
+.mic{
+ width:150px;height:150px;border:0;border-radius:50%;margin:24px auto 16px;
+ background:#5a50ee;color:white;font-size:68px;cursor:pointer;
+ box-shadow:0 0 0 14px #5a50ee12,0 14px 30px #5a50ee45;
+ transition:.2s;display:flex;align-items:center;justify-content:center;
+}
+.mic.listening{animation:pulse 1.15s infinite;transform:scale(1.04)}
+.mic:disabled{opacity:.8;cursor:default}
+@keyframes pulse{0%{box-shadow:0 0 0 10px #5a50ee12,0 14px 30px #5a50ee35}70%{box-shadow:0 0 0 28px #5a50ee00,0 14px 30px #5a50ee35}100%{box-shadow:0 0 0 10px #5a50ee12,0 14px 30px #5a50ee35}}
+.status{font-size:20px;font-weight:800;min-height:30px}
+.heard{font-size:17px;color:#65708b;min-height:28px;margin-top:8px}
+.tip{color:#9aa1b4;font-size:14px;margin-top:20px}
+.feedback{min-height:45px;margin-top:14px;font-size:24px;font-weight:900}
+.correct{color:#13a66b}.wrong{color:#e45a67}
+.controls{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+button.small{
+ border:0;background:#eef0ff;color:#4c46ba;border-radius:12px;padding:10px 15px;font-weight:800;cursor:pointer
+}
+button.small:hover{background:#e2e4ff}
 .hidden{display:none!important}
-.level{font-size:13px;color:#667085;font-weight:850;letter-spacing:.08em}
-.stage{position:relative;min-height:390px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.visual{font-size:150px;filter:drop-shadow(0 18px 18px #11182718);user-select:none;transition:transform .25s}
-.visual.pop{animation:pop .6s ease}
-@keyframes pop{0%{transform:scale(.75) rotate(-6deg);opacity:.4}60%{transform:scale(1.08) rotate(3deg)}100%{transform:scale(1)}}
-.correct{animation:correct .7s ease}
-@keyframes correct{0%{transform:scale(1)}45%{transform:scale(1.22) rotate(5deg)}100%{transform:scale(.2);opacity:0}}
-.spark{position:absolute;font-size:34px;opacity:0;pointer-events:none}
-.spark.go{animation:spark .7s ease}
-@keyframes spark{0%{transform:translate(0,0) scale(.5);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1.3);opacity:0}}
-.mic{width:112px;height:112px;border:0;border-radius:50%;background:#5b55f6;color:#fff;font-size:46px;cursor:pointer;box-shadow:0 13px 35px #635bff3d}
-.mic.listening{animation:micpulse 1.05s infinite}
-@keyframes micpulse{50%{box-shadow:0 0 0 18px #635bff18,0 13px 35px #635bff3d;transform:scale(1.05)}}
-.status{min-height:30px;margin:13px 0 5px;font-size:18px;font-weight:900}
-.heard{min-height:24px;color:#667085;font-size:14px}
-.wordReveal{margin-top:14px;min-height:65px}.word{font-size:32px;font-weight:950}.pinyin{color:#667085;font-size:18px}
-.tip{font-size:12px;color:#98a2b3;margin-top:15px}
-.finishScore{font-size:64px;font-weight:950;background:linear-gradient(135deg,#5b55f6,#a855f7);color:transparent;background-clip:text}
-.error{color:#b42318;font-weight:750}
-.good{color:#087443}
-@media(max-width:600px){.app{padding-top:18px}.panel{padding:22px}.stage{min-height:300px}.visual{font-size:115px}.mic{width:94px;height:94px;font-size:38px}.title{font-size:27px}}
+.flash{animation:flash .5s}
+@keyframes flash{50%{transform:scale(1.04)}}
+.note{
+ margin-top:18px;padding:13px 16px;border-radius:14px;background:#fff8e6;color:#85651b;
+ font-size:13px;text-align:left;line-height:1.5
+}
+.start{
+ position:fixed;inset:0;background:#ffffffee;display:flex;align-items:center;justify-content:center;padding:20px;z-index:10
+}
+.startbox{max-width:520px;text-align:center;background:white;padding:35px;border-radius:28px;box-shadow:0 20px 60px #25325a22}
+.startbox h1{font-size:34px;margin:0 0 10px}.startbox p{color:#68738c;line-height:1.6}
+.startbtn{border:0;background:#5a50ee;color:white;padding:15px 30px;border-radius:15px;font-size:19px;font-weight:900;cursor:pointer}
 </style>
 </head>
 <body>
-<main class="app">
-<header class="header">
-  <div><div class="brand">🎤 中文发音大闯关</div><div class="sub">看图 → 说中文 → 自动识别 → 自动过关</div></div>
-  <div class="stats"><span class="pill">⭐ <b id="score">0</b></span><span class="pill">🔥 <b id="combo">0</b></span><span class="pill">❤️ <b id="lives">3</b></span></div>
-</header>
-<div class="track"><i id="progress"></i></div>
-
-<section class="panel" id="start">
-  <div class="startIcon">🎧🇨🇳</div>
-  <div class="title">准备好了吗？</div>
-  <p class="desc">允许麦克风后，网页会持续听你说中文。<br><b>说对以后，不需要点击任何按钮，下一张图片会自动出现。识别没听清时可以直接再说一次。</b></p>
-  <button class="primary" id="startBtn">🎤 开始游戏</button>
-  <p class="tip">推荐使用最新版 Google Chrome，并允许此网站使用麦克风。</p>
-</section>
-
-<section class="panel hidden" id="game">
-  <div class="level" id="level"></div>
-  <div class="stage">
-    <div class="visual" id="visual"></div>
-    <span class="spark" id="s1">✨</span><span class="spark" id="s2">⭐</span><span class="spark" id="s3">🎉</span>
+<div class="start" id="startScreen">
+  <div class="startbox">
+    <h1>🎤 中文发音挑战</h1>
+    <p>看到图片后直接说出中文名称。<br>识别正确后会<strong>自动进入下一题</strong>，不需要点击 Next。</p>
+    <button class="startbtn" id="startBtn">开始游戏</button>
+    <div class="note">建议使用最新版 Google Chrome，并允许麦克风权限。浏览器语音识别偶尔会听错；听错时游戏会继续听，不会因为“中”“不可”等无关结果而扣分。</div>
   </div>
-  <div class="prompt" id="prompt">说出这个东西的中文名称</div>
-  <div class="wordReveal hidden" id="reveal"><div class="word" id="word"></div><div class="pinyin" id="pinyin"></div></div>
-  <button class="mic" id="mic" aria-label="麦克风">🎤</button>
-  <div class="status" id="status">正在准备麦克风…</div>
-  <div class="heard" id="heard"></div>
-  <div class="tip">说对后自动进入下一关 · 不需要点击 Next</div>
-</section>
+</div>
 
-<section class="panel hidden" id="finish">
-  <div class="startIcon">🏆</div>
-  <div class="title">闯关完成！</div>
-  <div class="finishScore" id="finalScore">0</div>
-  <p id="finalMsg" class="desc"></p>
-  <button class="primary" id="again">🔄 再玩一次</button>
-</section>
-</main>
+<div class="app">
+  <div class="top">
+    <div>
+      <div class="title">🎤 中文发音挑战</div>
+      <div class="sub">Say it correctly → 自动过关</div>
+    </div>
+    <div class="stats">
+      <div class="stat">⭐ Score <b id="score">0</b></div>
+      <div class="stat">🔥 Combo <b id="combo">0</b></div>
+      <div class="stat">❤️ Lives <b id="lives">3</b></div>
+    </div>
+  </div>
+
+  <div class="card" id="card">
+    <div class="round">ROUND <span id="round">1</span> / <span id="total">12</span></div>
+    <div class="emoji" id="emoji">🍌</div>
+    <div class="prompt">说出这个东西的中文名称</div>
+    <div class="target">目标：<span id="target">香蕉</span></div>
+
+    <button class="mic" id="micBtn" title="自动监听中">🎤</button>
+    <div class="status" id="status">准备开始…</div>
+    <div class="heard" id="heard">识别到：—</div>
+    <div class="feedback" id="feedback"></div>
+    <div class="tip">说错或识别不清时不用点击任何按钮，继续说即可。</div>
+
+    <div class="controls">
+      <button class="small" id="hearBtn">🔊 听标准发音</button>
+      <button class="small" id="restartBtn">↻ 重新开始</button>
+    </div>
+
+    <div class="note">
+      <strong>课堂提示：</strong>这个游戏使用浏览器内置语音识别。浏览器偶尔会把中文词听错；本游戏会过滤明显无关的识别结果，并在没有正确识别时自动继续监听。
+    </div>
+  </div>
+</div>
 
 <script>
-(() => {
-  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const levels = [
-    {pic:"🍌",word:"香蕉",pinyin:"xiāng jiāo"},
-    {pic:"🍎",word:"苹果",pinyin:"píng guǒ"},
-    {pic:"🍓",word:"草莓",pinyin:"cǎo méi"},
-    {pic:"🍉",word:"西瓜",pinyin:"xī guā"},
-    {pic:"🐱",word:"猫",pinyin:"māo"},
-    {pic:"🐶",word:"狗",pinyin:"gǒu"},
-    {pic:"🐰",word:"兔子",pinyin:"tù zi"},
-    {pic:"🥟",word:"饺子",pinyin:"jiǎo zi"},
-    {pic:"🍜",word:"面条",pinyin:"miàn tiáo"},
-    {pic:"🍚",word:"米饭",pinyin:"mǐ fàn"},
-    {pic:"🧋",word:"奶茶",pinyin:"nǎi chá"},
-    {pic:"🏫",word:"学校",pinyin:"xué xiào"}
-  ];
-  const $ = id => document.getElementById(id);
-  let recognition=null, stream=null, idx=0, score=0, combo=0, lives=3, locked=false, listening=false, finishing=false;
+const WORDS = [
+  {emoji:"🍌", word:"香蕉", pinyin:"xiang jiao", aliases:["香焦","香蕉儿","香蕉啊"]},
+  {emoji:"🍎", word:"苹果", pinyin:"ping guo", aliases:["平果","苹果啊","苹果儿"]},
+  {emoji:"🍊", word:"橙子", pinyin:"cheng zi", aliases:["橙子啊"]},
+  {emoji:"🍉", word:"西瓜", pinyin:"xi gua", aliases:["西瓜啊"]},
+  {emoji:"🍓", word:"草莓", pinyin:"cao mei", aliases:["草梅","草莓啊"]},
+  {emoji:"🍇", word:"葡萄", pinyin:"pu tao", aliases:["葡萄啊"]},
+  {emoji:"🥛", word:"牛奶", pinyin:"niu nai", aliases:["牛奶啊"]},
+  {emoji:"💧", word:"水", pinyin:"shui", aliases:["水啊"]},
+  {emoji:"🍵", word:"茶", pinyin:"cha", aliases:["茶啊"]},
+  {emoji:"🍚", word:"米饭", pinyin:"mi fan", aliases:["米饭啊"]},
+  {emoji:"🍜", word:"面条", pinyin:"mian tiao", aliases:["面条啊"]},
+  {emoji:"🥟", word:"饺子", pinyin:"jiao zi", aliases:["饺子啊"]}
+];
 
-  function norm(s){return String(s||"").replace(/[\s，。！？、,.!?]/g,"").trim();}
-  function stats(){ $("score").textContent=score; $("combo").textContent=combo; $("lives").textContent=lives; }
-  function render(){
-    locked=false;
-    const q=levels[idx];
-    $("level").textContent=`LEVEL ${idx+1} / ${levels.length}`;
-    $("visual").textContent=q.pic;
-    $("visual").classList.remove("pop","correct");
-    void $("visual").offsetWidth; $("visual").classList.add("pop");
-    $("progress").style.width=`${idx/levels.length*100}%`;
-    $("prompt").textContent="说出这个东西的中文名称";
-    $("reveal").classList.add("hidden");
-    $("heard").textContent="";
-    $("status").textContent="🎧 正在听…";
-    $("status").className="status";
+let index=0, score=0, combo=0, lives=3, locked=false, recognition=null;
+let listening=false, restartTimer=null, lastFinal="", stableCount=0;
+
+const $=id=>document.getElementById(id);
+$("total").textContent=WORDS.length;
+
+function normalize(s){
+  return (s||"").toLowerCase()
+    .replace(/[，。！？、,.!?；;：“”"'（）()《》<>~～\s]/g,"")
+    .replace(/儿$/,"");
+}
+
+function pinyinNormalize(s){
+  return (s||"").toLowerCase()
+    .replace(/[āáǎà]/g,"a").replace(/[ēéěè]/g,"e")
+    .replace(/[īíǐì]/g,"i").replace(/[ōóǒò]/g,"o")
+    .replace(/[ūúǔù]/g,"u").replace(/[ǖǘǚǜ]/g,"v")
+    .replace(/[^a-zv]/g,"");
+}
+
+function render(){
+  const w=WORDS[index];
+  $("round").textContent=index+1;
+  $("emoji").textContent=w.emoji;
+  $("target").textContent=w.word;
+  $("heard").textContent="识别到：—";
+  $("feedback").textContent="";
+  $("feedback").className="feedback";
+  $("card").classList.remove("flash");
+}
+
+function updateStats(){
+  $("score").textContent=score;
+  $("combo").textContent=combo;
+  $("lives").textContent=lives;
+}
+
+function setStatus(t){$("status").textContent=t}
+
+function speakTarget(){
+  if(!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(WORDS[index].word);
+  u.lang="zh-CN"; u.rate=.75; u.pitch=1;
+  speechSynthesis.speak(u);
+}
+
+function isCorrect(transcript){
+  const w=WORDS[index];
+  const n=normalize(transcript);
+  const pn=pinyinNormalize(transcript);
+  const candidates=[w.word,...w.aliases].map(normalize);
+  if(candidates.some(x=>n===x || n.includes(x))) return true;
+  const py=pinyinNormalize(w.pinyin);
+  if(pn && (pn===py || pn.includes(py))) return true;
+  return false;
+}
+
+function handleTranscript(text, isFinal){
+  if(!text) return;
+  $("heard").textContent="识别到："+text;
+
+  if(isCorrect(text)){
+    if(locked) return;
+    locked=true;
+    combo++;
+    score += 10 + Math.min(combo-1,5)*2;
+    $("feedback").textContent="✅ 正确！ +"+(10 + Math.min(combo-1,5)*2);
+    $("feedback").className="feedback correct";
+    $("card").classList.add("flash");
+    updateStats();
+    setStatus("🎉 很好！下一题…");
+    stopRecognition();
+    clearTimeout(restartTimer);
+    restartTimer=setTimeout(nextRound,800);
+  } else if(isFinal){
+    // Do not punish one bad recognition result such as “中” or “不可”.
+    stableCount=0;
+    setStatus("🎧 没听清，再说一次…");
+    restartRecognitionSoon();
   }
-  async function getMic(){
-    if(!navigator.mediaDevices?.getUserMedia) throw new Error("MIC_UNSUPPORTED");
-    if(!stream) stream=await navigator.mediaDevices.getUserMedia({audio:true});
+}
+
+function createRecognition(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    setStatus("❌ 此浏览器不支持中文语音识别");
+    $("heard").textContent="请使用最新版 Google Chrome。";
+    return null;
   }
-  function setup(){
-    recognition=new Speech();
-    recognition.lang="zh-CN";
-    recognition.continuous=true;
-    recognition.interimResults=true;
-    recognition.maxAlternatives=5;
-    recognition.onstart=()=>{listening=true;$("mic").classList.add("listening");$("status").textContent="🎧 正在听…";};
-    recognition.onresult=e=>{
-      let interim="", finals=[];
-      for(let n=e.resultIndex;n<e.results.length;n++){
-        const r=e.results[n];
-        const t=r[0]?.transcript||"";
-        if(r.isFinal){
-          const choices=[];
-          for(let k=0;k<Math.min(r.length,5);k++) choices.push(r[k]?.transcript||"");
-          finals.push(...choices);
-        } else interim+=t;
+  const r=new SR();
+  r.lang="zh-CN";
+  r.continuous=false;
+  r.interimResults=true;
+  r.maxAlternatives=5;
+
+  r.onstart=()=>{
+    listening=true;
+    $("micBtn").classList.add("listening");
+    setStatus("🎧 正在听…");
+  };
+
+  r.onresult=e=>{
+    let best="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const result=e.results[i];
+      for(let j=0;j<result.length;j++){
+        const t=result[j].transcript.trim();
+        if(t.length>best.length) best=t;
       }
-      const shown=(finals[0]||interim).trim();
-      if(shown) $("heard").textContent="识别到："+shown;
-      if(finals.length && !locked) check(finals);
-    };
-    recognition.onerror=e=>{
-      if(e.error==="not-allowed"||e.error==="service-not-allowed"){
-        $("status").textContent="⚠️ 麦克风权限被拒绝，请在浏览器设置中允许此网站使用麦克风。";
-        $("status").className="status error";
-      }else if(e.error!=="no-speech"&&e.error!=="aborted"){
-        $("status").textContent="没有听清，再说一次。";
-      }
-    };
-    recognition.onend=()=>{
-      listening=false;$("mic").classList.remove("listening");
-      if(!locked&&!finishing) setTimeout(startListening,180);
-    };
-  }
-  function startListening(){
-    if(!recognition||listening||locked||finishing)return;
-    try{recognition.start();}catch(e){}
-  }
-  function celebrate(){
-    ["s1","s2","s3"].forEach((id,n)=>{
-      const el=$(id);el.style.setProperty("--x",`${n===0?-90:n===1?0:90}px`);el.style.setProperty("--y",`${n===1?-90:-55}px`);
-      el.classList.remove("go");void el.offsetWidth;el.classList.add("go");
-    });
-  }
-  function check(candidates){
-    const q=levels[idx];
-    const target=norm(q.word);
-    const aliases={
-      "香蕉":["香蕉","香焦","香蕉儿","香蕉的"],
-      "苹果":["苹果","平果","苹果的"],
-      "草莓":["草莓","草梅","草莓的"],
-      "西瓜":["西瓜","西瓜的"],
-      "猫":["猫","猫咪","小猫"],
-      "狗":["狗","小狗","狗狗"],
-      "兔子":["兔子","兔","兔子的"],
-      "饺子":["饺子","饺","饺子的"],
-      "面条":["面条","面","面条的"],
-      "米饭":["米饭","米饭的","米"],
-      "奶茶":["奶茶","奶茶的"],
-      "学校":["学校","学校的"]
-    };
-    const accepted=(aliases[q.word]||[q.word]).map(norm);
-    const list=(Array.isArray(candidates)?candidates:[candidates]).map(norm).filter(Boolean);
-    const correct=list.some(heard=>accepted.some(a=>heard===a||heard.includes(a)));
-    if(correct){
-      locked=true;combo++;score+=100+Math.min(combo-1,10)*25;stats();celebrate();
-      $("reveal").classList.remove("hidden");$("word").textContent=q.word;$("pinyin").textContent=q.pinyin;
-      $("status").textContent="✅ 正确！";$("status").className="status good";
-      $("visual").classList.add("correct");
-      setTimeout(()=>{
-        idx++;
-        if(idx>=levels.length) finish();
-        else {render();startListening();}
-      },650);
-    }else{
-      // Do not immediately consume a life for every imperfect ASR result.
-      // The learner can simply try again.
-      $("status").textContent="👂 没听清，再说一次！";$("status").className="status error";
+      if(result.isFinal) handleTranscript(best,true);
+      else if(best) $("heard").textContent="识别到："+best;
     }
-  }
-  function finish(){
-    finishing=true;
-    try{recognition?.stop();}catch(e){}
-    $("game").classList.add("hidden");$("finish").classList.remove("hidden");$("progress").style.width="100%";
-    $("finalScore").textContent=score;
-    $("finalMsg").textContent=idx>=levels.length?"🌟 太厉害了！你完成了全部中文发音挑战！":"💪 很不错！再玩一次，挑战更高分！";
-  }
-  async function begin(){
-    if(!Speech){alert("请使用最新版 Google Chrome。此浏览器不支持网页语音识别。");return;}
-    try{
-      await getMic();
-      idx=0;score=0;combo=0;lives=3;finishing=false;stats();
-      $("start").classList.add("hidden");$("finish").classList.add("hidden");$("game").classList.remove("hidden");
-      setup();render();startListening();
-    }catch(e){
-      alert("需要允许麦克风权限才能开始游戏。请点击浏览器地址栏左侧的麦克风/权限图标，选择 Allow，然后重新开始。");
+  };
+
+  r.onerror=e=>{
+    listening=false;
+    $("micBtn").classList.remove("listening");
+    if(e.error==="not-allowed" || e.error==="service-not-allowed"){
+      setStatus("❌ 麦克风权限被拒绝");
+      $("heard").textContent="请点击地址栏的麦克风图标，允许麦克风。";
+    } else if(e.error==="network"){
+      setStatus("⚠️ 语音服务连接失败，正在重试…");
+      restartRecognitionSoon();
+    } else {
+      setStatus("🎧 请继续说…");
+      restartRecognitionSoon();
     }
+  };
+
+  r.onend=()=>{
+    listening=false;
+    $("micBtn").classList.remove("listening");
+    if(!locked && lives>0) restartRecognitionSoon();
+  };
+  return r;
+}
+
+function stopRecognition(){
+  clearTimeout(restartTimer);
+  if(recognition){
+    try{recognition.onend=null; recognition.stop();}catch(e){}
   }
-  $("startBtn").addEventListener("click",begin);
-  $("again").addEventListener("click",begin);
-  $("mic").addEventListener("click",()=>{if(listening){try{recognition.stop();}catch(e){}}else startListening();});
-  stats();
-})();
+  listening=false;
+  $("micBtn").classList.remove("listening");
+}
+
+function restartRecognitionSoon(){
+  clearTimeout(restartTimer);
+  restartTimer=setTimeout(startRecognition,180);
+}
+
+function startRecognition(){
+  if(locked || lives<=0) return;
+  if(listening) return;
+  if(!recognition) recognition=createRecognition();
+  if(!recognition) return;
+  try{ recognition.start(); }
+  catch(e){ restartRecognitionSoon(); }
+}
+
+function nextRound(){
+  index++;
+  if(index>=WORDS.length){
+    stopRecognition();
+    $("emoji").textContent="🏆";
+    $("prompt").textContent="";
+    $("target").textContent="挑战完成！";
+    $("status").textContent="最终得分："+score;
+    $("heard").textContent="🔥 Combo："+combo;
+    $("feedback").textContent="太棒了！";
+    $("feedback").className="feedback correct";
+    return;
+  }
+  locked=false;
+  render();
+  startRecognition();
+}
+
+$("startBtn").onclick=()=>{
+  $("startScreen").classList.add("hidden");
+  render(); updateStats();
+  // Request mic permission once. SpeechRecognition still handles actual recognition.
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    navigator.mediaDevices.getUserMedia({audio:true})
+      .then(stream=>{
+        stream.getTracks().forEach(t=>t.stop());
+        startRecognition();
+      })
+      .catch(()=>setStatus("❌ 请允许麦克风后再开始"));
+  } else startRecognition();
+};
+
+$("micBtn").onclick=()=>startRecognition();
+$("hearBtn").onclick=speakTarget;
+
+$("restartBtn").onclick=()=>{
+  stopRecognition();
+  index=0; score=0; combo=0; lives=3; locked=false;
+  updateStats(); render(); startRecognition();
+};
 </script>
 </body>
 </html>
