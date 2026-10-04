@@ -54,7 +54,7 @@ button{font:inherit}
 <section class="panel" id="start">
   <div class="startIcon">🎧🇨🇳</div>
   <div class="title">准备好了吗？</div>
-  <p class="desc">允许麦克风后，网页会持续听你说中文。<br><b>说对了以后，不需要点击任何按钮，下一张图片会自动出现。</b></p>
+  <p class="desc">允许麦克风后，网页会持续听你说中文。<br><b>说对以后，不需要点击任何按钮，下一张图片会自动出现。识别没听清时可以直接再说一次。</b></p>
   <button class="primary" id="startBtn">🎤 开始游戏</button>
   <p class="tip">推荐使用最新版 Google Chrome，并允许此网站使用麦克风。</p>
 </section>
@@ -130,14 +130,19 @@ button{font:inherit}
     recognition.maxAlternatives=5;
     recognition.onstart=()=>{listening=true;$("mic").classList.add("listening");$("status").textContent="🎧 正在听…";};
     recognition.onresult=e=>{
-      let interim="", finalText="";
+      let interim="", finals=[];
       for(let n=e.resultIndex;n<e.results.length;n++){
-        const t=e.results[n][0]?.transcript||"";
-        if(e.results[n].isFinal) finalText+=t; else interim+=t;
+        const r=e.results[n];
+        const t=r[0]?.transcript||"";
+        if(r.isFinal){
+          const choices=[];
+          for(let k=0;k<Math.min(r.length,5);k++) choices.push(r[k]?.transcript||"");
+          finals.push(...choices);
+        } else interim+=t;
       }
-      const shown=(finalText||interim).trim();
+      const shown=(finals[0]||interim).trim();
       if(shown) $("heard").textContent="识别到："+shown;
-      if(finalText && !locked) check(finalText);
+      if(finals.length && !locked) check(finals);
     };
     recognition.onerror=e=>{
       if(e.error==="not-allowed"||e.error==="service-not-allowed"){
@@ -162,11 +167,29 @@ button{font:inherit}
       el.classList.remove("go");void el.offsetWidth;el.classList.add("go");
     });
   }
-  function check(text){
-    const target=norm(levels[idx].word), heard=norm(text);
-    if(heard===target || heard.includes(target)){
+  function check(candidates){
+    const q=levels[idx];
+    const target=norm(q.word);
+    const aliases={
+      "香蕉":["香蕉","香焦","香蕉儿","香蕉的"],
+      "苹果":["苹果","平果","苹果的"],
+      "草莓":["草莓","草梅","草莓的"],
+      "西瓜":["西瓜","西瓜的"],
+      "猫":["猫","猫咪","小猫"],
+      "狗":["狗","小狗","狗狗"],
+      "兔子":["兔子","兔","兔子的"],
+      "饺子":["饺子","饺","饺子的"],
+      "面条":["面条","面","面条的"],
+      "米饭":["米饭","米饭的","米"],
+      "奶茶":["奶茶","奶茶的"],
+      "学校":["学校","学校的"]
+    };
+    const accepted=(aliases[q.word]||[q.word]).map(norm);
+    const list=(Array.isArray(candidates)?candidates:[candidates]).map(norm).filter(Boolean);
+    const correct=list.some(heard=>accepted.some(a=>heard===a||heard.includes(a)));
+    if(correct){
       locked=true;combo++;score+=100+Math.min(combo-1,10)*25;stats();celebrate();
-      $("reveal").classList.remove("hidden");$("word").textContent=levels[idx].word;$("pinyin").textContent=levels[idx].pinyin;
+      $("reveal").classList.remove("hidden");$("word").textContent=q.word;$("pinyin").textContent=q.pinyin;
       $("status").textContent="✅ 正确！";$("status").className="status good";
       $("visual").classList.add("correct");
       setTimeout(()=>{
@@ -175,12 +198,9 @@ button{font:inherit}
         else {render();startListening();}
       },650);
     }else{
-      lives--;combo=0;stats();
-      $("status").textContent="❌ 再试一次！";$("status").className="status error";
-      if(lives<=0){
-        locked=true;finishing=true;
-        setTimeout(finish,700);
-      }
+      // Do not immediately consume a life for every imperfect ASR result.
+      // The learner can simply try again.
+      $("status").textContent="👂 没听清，再说一次！";$("status").className="status error";
     }
   }
   function finish(){
