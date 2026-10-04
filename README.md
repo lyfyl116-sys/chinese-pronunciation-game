@@ -1,19 +1,17 @@
-# 中文发音大闯关
+中文发音挑战 V3
+================
 
-这是一个适合课堂使用的中文发音小游戏：
+上传 index.html 到 GitHub Pages，替换旧版本。
 
-图片 → 学生说中文 → Chrome 语音识别 → 识别正确 → 自动进入下一关。
+建议：
+1. 使用最新版 Google Chrome。
+2. GitHub Pages 必须是 HTTPS。
+3. 第一次打开时点击“开始游戏”，允许麦克风。
+4. 学生看到图片后直接说中文，不需要点击 Next。
+5. 如果浏览器把词识别成“中”“不可”等无关结果，不会扣分，会继续监听。
+6. “听标准发音”按钮可播放当前目标词。
 
-## 推荐部署：GitHub Pages
-
-1. 在 GitHub 新建一个公开 repository，例如 `chinese-pronunciation-game`。
-2. 上传 `index.html`。
-3. Repository → Settings → Pages。
-4. Source 选择 `Deploy from a branch`。
-5. Branch 选择 `main` / root → Save。
-6. 等待 GitHub Pages 发布后，用生成的 `https://...github.io/...` 网址打开。
-7. 第一次点击 START GAME 时选择 **Allow microphone**。
-
-## 重要
-
-请使用最新版 Google Chrome。麦克风语音识别需要 HTTPS（GitHub Pages 自带 HTTPS）或 localhost。
+重要：
+本版本使用浏览器内置 Web Speech API。Chrome 的语音服务偶尔会误识别中文，
+所以程序加入了别名、拼音、重复监听和无关结果过滤，但无法保证浏览器本身
+100%正确识别每一次发音。
